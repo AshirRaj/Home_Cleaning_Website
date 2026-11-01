@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const AdminSettings = () => {
-  const { adminUser } = useAdminAuth();
+  const { adminUser, loginAdmin } = useAdminAuth();
 
   // Form State: Change via Previous Password
   const [oldPassword, setOldPassword] = useState('');
@@ -53,8 +53,11 @@ export const AdminSettings = () => {
       const res = await authApi.changePassword({
         oldPassword,
         newPassword,
-        email: adminUser?.email || 'admin@sagrika.com',
+        email: adminUser?.email,
       });
+      if (res?.token && res?.user) {
+        loginAdmin(res.user, res.token);
+      }
       localStorage.setItem('sparkle_admin_password', newPassword);
       setSuccessMsg(res.message || 'Password updated successfully! Subsequent admin logins will require your new password.');
       setOldPassword('');
@@ -142,7 +145,7 @@ export const AdminSettings = () => {
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-1">
             <span className="text-xs font-bold text-slate-900">Verify Previous Password:</span>
             <p className="text-[11px] text-slate-500">
-              Enter your current/previous admin password to authorize the change (Default: <code className="bg-slate-200 px-1 py-0.5 rounded text-teal-800 font-mono">admin123</code>).
+              Enter your current admin password to authorize the change.
             </p>
           </div>
 

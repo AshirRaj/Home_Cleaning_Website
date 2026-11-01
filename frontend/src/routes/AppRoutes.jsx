@@ -9,6 +9,7 @@ import { Booking } from '../pages/public/Booking';
 import { BookingReview } from '../pages/public/BookingReview';
 import { Payment } from '../pages/public/Payment';
 import { BookingSuccess } from '../pages/public/BookingSuccess';
+import { TrackBooking } from '../pages/public/TrackBooking';
 import { About } from '../pages/public/About';
 import { Contact } from '../pages/public/Contact';
 import { FAQ } from '../pages/public/FAQ';
@@ -21,6 +22,7 @@ import { AdminDashboard } from '../pages/admin/AdminDashboard';
 import { AdminServices } from '../pages/admin/AdminServices';
 import { AdminBookings } from '../pages/admin/AdminBookings';
 import { AdminBookingDetails } from '../pages/admin/AdminBookingDetails';
+import { AdminCalendar } from '../pages/admin/AdminCalendar';
 import { AdminSettings } from '../pages/admin/AdminSettings';
 
 // Layouts & Guard
@@ -91,6 +93,7 @@ export const AppRoutes = () => {
         <Route path="/book/review" element={<PublicLayout><BookingReview /></PublicLayout>} />
         <Route path="/book/payment" element={<PublicLayout><Payment /></PublicLayout>} />
         <Route path="/book/success" element={<PublicLayout><BookingSuccess /></PublicLayout>} />
+        <Route path="/track-booking" element={<PublicLayout><TrackBooking /></PublicLayout>} />
         <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
         <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
         <Route path="/faq" element={<PublicLayout><FAQ /></PublicLayout>} />
@@ -106,6 +109,7 @@ export const AppRoutes = () => {
           <Route path="/admin/services" element={<AdminLayout title="Service Catalog Management"><AdminServices /></AdminLayout>} />
           <Route path="/admin/bookings" element={<AdminLayout title="All Customer Bookings"><AdminBookings /></AdminLayout>} />
           <Route path="/admin/bookings/:bookingId" element={<AdminLayout title="Booking Specification"><AdminBookingDetails /></AdminLayout>} />
+          <Route path="/admin/calendar" element={<AdminLayout title="Operational Calendar & Schedule"><AdminCalendar /></AdminLayout>} />
           <Route path="/admin/settings" element={<AdminLayout title="Control Panel Settings"><AdminSettings /></AdminLayout>} />
         </Route>
 

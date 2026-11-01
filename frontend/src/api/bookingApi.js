@@ -95,15 +95,50 @@ export const bookingApi = {
     return response.data;
   },
 
-  updateBookingStatus: async (id, status) => {
+  updateBookingStatus: async (id, status, assignedCleaner = null) => {
     if (MOCK_ENABLED) {
       await delay(300);
       const index = currentBookings.findIndex((b) => b.id === id);
       if (index === -1) throw new Error('Booking not found');
       currentBookings[index].status = status;
+      if (assignedCleaner) {
+        currentBookings[index].assignedCleaner = assignedCleaner;
+      }
       return currentBookings[index];
     }
-    const response = await axiosInstance.patch(ENDPOINTS.BOOKINGS.UPDATE_STATUS(id), { status });
+    const response = await axiosInstance.patch(ENDPOINTS.BOOKINGS.UPDATE_STATUS(id), {
+      status,
+      assignedCleaner,
+    });
+    return response.data;
+  },
+
+  trackBooking: async (query) => {
+    if (MOCK_ENABLED) {
+      await delay(300);
+      const clean = query.trim().toLowerCase();
+      const b = currentBookings.find(
+        (item) =>
+          item.id.toLowerCase() === clean ||
+          item.customer?.phone?.includes(clean)
+      );
+      if (!b) throw new Error('Booking not found');
+      return { success: true, count: 1, booking: b, bookings: [b] };
+    }
+    const response = await axiosInstance.get('/bookings/track', {
+      params: { query },
+    });
+    return response.data;
+  },
+
+  getCalendarBookings: async (params = {}) => {
+    if (MOCK_ENABLED) {
+      await delay(300);
+      return currentBookings;
+    }
+    const response = await axiosInstance.get('/admin/bookings/calendar', {
+      params,
+    });
     return response.data;
   },
 

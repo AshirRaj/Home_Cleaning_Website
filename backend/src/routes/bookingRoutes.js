@@ -3,7 +3,9 @@ import {
   createBooking,
   getAvailability,
   getBookingById,
+  trackBooking,
   getAdminBookings,
+  getCalendarBookings,
   updateBookingStatus,
   updatePaymentStatus,
   addBookingNote,
@@ -16,9 +18,11 @@ const router = Router();
 // Public Booking routes
 router.post('/bookings', createBooking);
 router.get('/bookings/availability', getAvailability);
+router.get('/bookings/track', trackBooking);
 router.get('/bookings/:id', getBookingById);
 
 // Admin Booking routes
+router.get('/admin/bookings/calendar', authenticateAdmin, getCalendarBookings);
 router.get('/admin/bookings', authenticateAdmin, getAdminBookings);
 router.get('/admin/bookings/:id', authenticateAdmin, getBookingById);
 router.patch('/admin/bookings/:id/status', authenticateAdmin, updateBookingStatus);

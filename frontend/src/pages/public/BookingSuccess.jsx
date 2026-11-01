@@ -137,8 +137,13 @@ export const BookingSuccess = () => {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-slate-100">
+          <Link to={`/track-booking?id=${booking.id}`} className="w-full sm:w-auto">
+            <Button variant="primary" size="lg" className="w-full sm:w-auto font-bold shadow-md shadow-teal-600/20">
+              Track Live Status ➔
+            </Button>
+          </Link>
           <Link to="/" className="w-full sm:w-auto">
-            <Button variant="primary" size="lg" icon={Home} className="w-full sm:w-auto" onClick={() => resetBooking()}>
+            <Button variant="outline" size="lg" icon={Home} className="w-full sm:w-auto" onClick={() => resetBooking()}>
               Back to Home
             </Button>
           </Link>

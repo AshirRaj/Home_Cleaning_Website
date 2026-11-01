@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   CalendarCheck2,
+  CalendarDays,
   Settings,
   LogOut,
   Sparkles,
@@ -22,6 +23,7 @@ export const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
     { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Services Catalog', path: '/admin/services', icon: Sparkles },
     { name: 'Bookings Management', path: '/admin/bookings', icon: CalendarCheck2 },
+    { name: 'Calendar Schedule', path: '/admin/calendar', icon: CalendarDays },
     { name: 'Settings & Business', path: '/admin/settings', icon: Settings },
   ];
 

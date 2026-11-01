@@ -73,7 +73,15 @@ export const BookingDetailsModal = ({ isOpen, onClose, booking }) => {
     );
   };
 
-  const statuses = ['Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'];
+  const statuses = [
+    'Pending',
+    'Confirmed',
+    'Assigned',
+    'Cleaner on the Way',
+    'In Progress',
+    'Completed',
+    'Cancelled',
+  ];
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Booking Specs #${booking.id}`} maxWidth="max-w-4xl">

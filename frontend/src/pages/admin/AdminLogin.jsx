@@ -38,7 +38,7 @@ export const AdminLogin = () => {
   const [successMessage, setSuccessMessage] = useState('');
 
   // Password Reset State (via Previous Password)
-  const [forgotEmail, setForgotEmail] = useState('admin@sagrika.com');
+  const [forgotEmail, setForgotEmail] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -53,16 +53,11 @@ export const AdminLogin = () => {
   } = useForm({
     resolver: zodResolver(adminLoginSchema),
     defaultValues: {
-      email: 'admin@sagrika.com',
-      password: 'admin123',
+      email: '',
+      password: '',
       rememberMe: true,
     },
   });
-
-  const handleDemoFill = () => {
-    setValue('email', 'admin@sagrika.com', { shouldValidate: true });
-    setValue('password', 'admin123', { shouldValidate: true });
-  };
 
   const onSubmit = (data) => {
     setAuthError('');
@@ -162,21 +157,6 @@ export const AdminLogin = () => {
           {/* STANDARD LOGIN FORM */}
           {mode === 'LOGIN' && (
             <>
-              {/* Demo Fill Helper Banner */}
-              <div className="bg-teal-50 border border-teal-200 p-3.5 rounded-2xl flex items-center justify-between text-xs text-teal-900">
-                <div>
-                  <span className="font-bold block">Admin Login Credentials</span>
-                  <span className="text-[11px] text-teal-700">admin@sagrika.com / admin123</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleDemoFill}
-                  className="px-3 py-1 bg-teal-600 text-white rounded-lg font-bold text-[11px] hover:bg-teal-700 transition-colors cursor-pointer"
-                >
-                  Auto-Fill
-                </button>
-              </div>
-
               {authError && (
                 <div className="flex items-center gap-2 text-xs text-rose-600 bg-rose-50 p-3 rounded-xl border border-rose-200 font-medium">
                   <AlertCircle className="w-4 h-4 shrink-0" />
@@ -189,7 +169,7 @@ export const AdminLogin = () => {
                   label="Admin Email Address"
                   required
                   icon={Mail}
-                  placeholder="admin@sagrika.com"
+                  placeholder="admin@sagarika.com"
                   error={errors.email?.message}
                   {...register('email')}
                 />
@@ -249,7 +229,7 @@ export const AdminLogin = () => {
               <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
                 <span className="font-bold text-slate-900 block">Verify Previous Password</span>
                 <p className="text-[11px] text-slate-500">
-                  Enter your registered email and previous password to set a new password (Default: <code className="bg-slate-200 px-1 py-0.5 rounded text-teal-800 font-mono">admin123</code>).
+                  Enter your registered admin email and your current/previous password to set a new password.
                 </p>
               </div>
 
@@ -265,7 +245,7 @@ export const AdminLogin = () => {
                 type="email"
                 required
                 icon={Mail}
-                placeholder="admin@sagrika.com"
+                placeholder="admin@sagarika.com"
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
               />

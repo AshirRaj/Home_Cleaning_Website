@@ -145,6 +145,116 @@ export const getBookingById = async (req, res, next) => {
   }
 };
 
+export const trackBooking = async (req, res, next) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || !query.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a Booking ID or registered phone number to track your booking.',
+        code: 'VALIDATION_ERROR',
+      });
+    }
+
+    const clean = query.trim();
+    const phoneDigits = clean.replace(/[^0-9]/g, '');
+
+    const orConditions = [
+      { bookingId: clean },
+      { id: clean },
+      { 'customer.email': clean.toLowerCase() },
+    ];
+
+    if (phoneDigits.length >= 7) {
+      const last10 = phoneDigits.slice(-10);
+      orConditions.push(
+        { 'customer.phone': new RegExp(last10 + '$') },
+        { 'customer.whatsApp': new RegExp(last10 + '$') }
+      );
+    }
+
+    const bookings = await Booking.find({ $or: orConditions }).sort({ createdAt: -1 });
+
+    if (!bookings || bookings.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `No active or completed bookings found for "${clean}". Please double-check your booking reference.`,
+        code: 'NOT_FOUND',
+      });
+    }
+
+    const sanitized = bookings.map((b) => ({
+      id: b.id,
+      bookingId: b.bookingId || b.id,
+      customer: {
+        fullName: b.customer?.fullName,
+        phone: b.customer?.phone,
+        email: b.customer?.email,
+      },
+      service: b.service,
+      selectedServices: b.selectedServices,
+      property: {
+        propertyType: b.property?.propertyType,
+        bedrooms: b.property?.bedrooms,
+        bathrooms: b.property?.bathrooms,
+        propertySize: b.property?.propertySize,
+      },
+      address: {
+        addressLine: b.address?.addressLine,
+        city: b.address?.city,
+        landmark: b.address?.landmark,
+        postalCode: b.address?.postalCode,
+      },
+      schedule: b.schedule,
+      pricing: {
+        total: b.pricing?.total,
+        subtotal: b.pricing?.subtotal,
+      },
+      payment: {
+        status: b.payment?.status,
+        method: b.payment?.method,
+      },
+      status: b.status || 'Confirmed',
+      assignedCleaner: b.assignedCleaner || {
+        name: 'Sagarika Operations Crew',
+        phone: '+91 76810 45009',
+      },
+      createdAt: b.createdAt,
+      updatedAt: b.updatedAt,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      count: sanitized.length,
+      booking: sanitized[0],
+      bookings: sanitized,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCalendarBookings = async (req, res, next) => {
+  try {
+    const { start, end, month, year } = req.query;
+
+    const query = {};
+
+    if (start && end) {
+      query['schedule.date'] = { $gte: start, $lte: end };
+    } else if (month && year) {
+      const prefix = `${year}-${String(month).padStart(2, '0')}`;
+      query['schedule.date'] = new RegExp(`^${prefix}`);
+    }
+
+    const bookings = await Booking.find(query).sort({ 'schedule.date': 1, 'schedule.timeSlot': 1 });
+    return res.status(200).json(bookings);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getAdminBookings = async (req, res, next) => {
   try {
     const { search, status, paymentStatus, serviceId, sortBy = 'newest', page = 1, limit = 50 } = req.query;
@@ -196,10 +306,19 @@ export const getAdminBookings = async (req, res, next) => {
 export const updateBookingStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, assignedCleaner } = req.body;
 
-    const validStatuses = ['Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'];
-    if (!validStatuses.includes(status)) {
+    const validStatuses = [
+      'Pending',
+      'Confirmed',
+      'Assigned',
+      'Cleaner on the Way',
+      'In Progress',
+      'Completed',
+      'Cancelled',
+    ];
+
+    if (status && !validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
         message: `Invalid booking status. Allowed: ${validStatuses.join(', ')}`,
@@ -220,7 +339,19 @@ export const updateBookingStatus = async (req, res, next) => {
     }
 
     const previousStatus = booking.status;
-    booking.status = status;
+    if (status) {
+      booking.status = status;
+    }
+
+    if (assignedCleaner && typeof assignedCleaner === 'object') {
+      booking.assignedCleaner = {
+        name: assignedCleaner.name || booking.assignedCleaner?.name || 'Sagarika Operations Crew',
+        phone: assignedCleaner.phone || booking.assignedCleaner?.phone || '+91 76810 45009',
+        notes: assignedCleaner.notes ?? (booking.assignedCleaner?.notes || ''),
+        assignedAt: new Date(),
+      };
+    }
+
     await booking.save();
 
     // Audit Log

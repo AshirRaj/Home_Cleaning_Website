@@ -12,12 +12,21 @@ export const useAdminBookings = (filters = {}) => {
 export const useUpdateBookingStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }) => bookingApi.updateBookingStatus(id, status),
+    mutationFn: ({ id, status, assignedCleaner }) =>
+      bookingApi.updateBookingStatus(id, status, assignedCleaner),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-calendar-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['booking', data.id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
     },
+  });
+};
+
+export const useCalendarBookings = (params = {}) => {
+  return useQuery({
+    queryKey: ['admin-calendar-bookings', params],
+    queryFn: () => bookingApi.getCalendarBookings(params),
   });
 };
 

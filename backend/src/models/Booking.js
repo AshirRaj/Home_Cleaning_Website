@@ -108,9 +108,23 @@ const bookingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'],
+      enum: [
+        'Pending',
+        'Confirmed',
+        'Assigned',
+        'Cleaner on the Way',
+        'In Progress',
+        'Completed',
+        'Cancelled',
+      ],
       default: 'Pending',
       index: true,
+    },
+    assignedCleaner: {
+      name: { type: String, default: 'Sagarika Cleaning Crew' },
+      phone: { type: String, default: '+91 76810 45009' },
+      notes: { type: String, default: '' },
+      assignedAt: { type: Date, default: null },
     },
     notes: {
       type: String,

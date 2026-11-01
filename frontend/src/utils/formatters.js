@@ -32,6 +32,12 @@ export const getBookingStatusBadge = (status) => {
   switch (status?.toLowerCase()) {
     case 'confirmed':
       return { label: 'Confirmed', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: 'CheckCircle' };
+    case 'assigned':
+      return { label: 'Assigned', bg: 'bg-purple-50 text-purple-700 border-purple-200', icon: 'UserCheck' };
+    case 'cleaner on the way':
+    case 'cleaner_on_the_way':
+    case 'on the way':
+      return { label: 'Cleaner on the Way', bg: 'bg-indigo-50 text-indigo-700 border-indigo-200', icon: 'Truck' };
     case 'in progress':
     case 'in_progress':
       return { label: 'In Progress', bg: 'bg-sky-50 text-sky-700 border-sky-200', icon: 'Clock' };
