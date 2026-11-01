@@ -1,33 +1,75 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authApi } from '../api/authApi';
 
 const AdminAuthContext = createContext();
 
 export const AdminAuthProvider = ({ children }) => {
   const [adminUser, setAdminUser] = useState(() => {
-    const savedUser = localStorage.getItem('sparkle_admin_user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      const savedUser = localStorage.getItem('sparkle_admin_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
   });
 
   const [token, setToken] = useState(() => {
     return localStorage.getItem('sparkle_admin_token') || null;
   });
 
-  const isAuthenticated = Boolean(token && adminUser);
+  const [isVerifying, setIsVerifying] = useState(Boolean(token));
 
-  const loginAdmin = (userData, userToken) => {
-    setAdminUser(userData);
-    setToken(userToken);
-    localStorage.setItem('sparkle_admin_user', JSON.stringify(userData));
-    localStorage.setItem('sparkle_admin_token', userToken);
-  };
-
-  const logoutAdmin = () => {
+  const logoutAdmin = useCallback(() => {
     setAdminUser(null);
     setToken(null);
     localStorage.removeItem('sparkle_admin_user');
     localStorage.removeItem('sparkle_admin_token');
-  };
+    localStorage.removeItem('sparkle_admin_password');
+  }, []);
+
+  const loginAdmin = useCallback((userData, userToken) => {
+    setAdminUser(userData);
+    setToken(userToken);
+    localStorage.setItem('sparkle_admin_user', JSON.stringify(userData));
+    localStorage.setItem('sparkle_admin_token', userToken);
+  }, []);
+
+  // Verify stored session with backend on load
+  useEffect(() => {
+    let isMounted = true;
+
+    const verifySession = async () => {
+      const storedToken = localStorage.getItem('sparkle_admin_token');
+      if (!storedToken) {
+        if (isMounted) setIsVerifying(false);
+        return;
+      }
+
+      try {
+        const res = await authApi.getCurrentAdmin();
+        if (isMounted && res?.user) {
+          setAdminUser(res.user);
+          localStorage.setItem('sparkle_admin_user', JSON.stringify(res.user));
+        }
+      } catch (err) {
+        // If unauthenticated or token expired, log out
+        if (err.response?.status === 401 && isMounted) {
+          logoutAdmin();
+        }
+      } finally {
+        if (isMounted) setIsVerifying(false);
+      }
+    };
+
+    verifySession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [logoutAdmin]);
+
+  const isAuthenticated = Boolean(token && adminUser);
 
   return (
     <AdminAuthContext.Provider
@@ -35,6 +77,7 @@ export const AdminAuthProvider = ({ children }) => {
         adminUser,
         token,
         isAuthenticated,
+        isVerifying,
         loginAdmin,
         logoutAdmin,
       }}

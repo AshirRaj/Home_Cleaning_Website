@@ -350,21 +350,24 @@ const seedDB = async () => {
 
     console.log('[Seed]: Seeding database...');
 
-    // Seed Admin
-    const adminEmail = 'admin@sagrika.com';
-    let admin = await Admin.findOne({ email: adminEmail });
-    if (!admin) {
-      const passwordHash = await bcrypt.hash('admin123', 10);
-      admin = await Admin.create({
-        name: 'Sagarika Admin',
-        email: adminEmail,
-        passwordHash,
-        role: 'SUPER_ADMIN',
-        isActive: true,
-      });
-      console.log(`[Seed]: Created default Admin: ${adminEmail} / admin123`);
-    } else {
-      console.log(`[Seed]: Admin ${adminEmail} already exists.`);
+    // Seed Admins (supports both common spellings)
+    const adminEmails = ['admin@sagrika.com', 'admin@sagarika.com'];
+    const passwordHash = await bcrypt.hash('admin123', 10);
+
+    for (const email of adminEmails) {
+      let admin = await Admin.findOne({ email });
+      if (!admin) {
+        await Admin.create({
+          name: 'Sagarika Admin',
+          email,
+          passwordHash,
+          role: 'SUPER_ADMIN',
+          isActive: true,
+        });
+        console.log(`[Seed]: Created default Admin: ${email} / admin123`);
+      } else {
+        console.log(`[Seed]: Admin ${email} already exists.`);
+      }
     }
 
     // Seed Services

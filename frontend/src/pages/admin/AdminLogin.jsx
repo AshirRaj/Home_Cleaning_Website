@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,7 +22,13 @@ import {
 export const AdminLogin = () => {
   const navigate = useNavigate();
   const loginMutation = useAdminLogin();
-  const { loginAdmin } = useAdminAuth();
+  const { loginAdmin, isAuthenticated } = useAdminAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Mode: 'LOGIN' or 'FORGOT_PASSWORD'
   const [mode, setMode] = useState('LOGIN');
@@ -69,7 +75,7 @@ export const AdminLogin = () => {
         navigate('/admin/dashboard', { replace: true });
       },
       onError: (err) => {
-        setAuthError(err.message || 'Invalid admin credentials');
+        setAuthError(err.response?.data?.message || err.message || 'Invalid admin credentials');
       },
     });
   };

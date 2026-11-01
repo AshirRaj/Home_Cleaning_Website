@@ -43,8 +43,17 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Optional: Clear token if 401 unauthorized
       localStorage.removeItem('sparkle_admin_token');
+      localStorage.removeItem('sparkle_admin_user');
+      localStorage.removeItem('sparkle_admin_password');
+
+      if (
+        typeof window !== 'undefined' &&
+        window.location.pathname.startsWith('/admin') &&
+        window.location.pathname !== '/admin/login'
+      ) {
+        window.location.href = '/admin/login';
+      }
     }
     return Promise.reject(error);
   }

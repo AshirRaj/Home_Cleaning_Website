@@ -52,3 +52,27 @@ export const requireAdminRole = (req, res, next) => {
   }
   next();
 };
+
+export const optionalAuthenticateAdmin = async (req, res, next) => {
+  try {
+    let token = null;
+
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies && req.cookies.admin_token) {
+      token = req.cookies.admin_token;
+    }
+
+    if (token) {
+      const secret = process.env.JWT_SECRET || 'super_secret_production_jwt_key_sagarika_cleaning_2026';
+      const decoded = jwt.verify(token, secret);
+      const admin = await Admin.findById(decoded.id);
+      if (admin && admin.isActive) {
+        req.admin = admin;
+      }
+    }
+  } catch {
+    // Non-fatal for optional auth
+  }
+  next();
+};

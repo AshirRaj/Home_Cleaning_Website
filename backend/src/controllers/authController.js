@@ -21,6 +21,14 @@ export const login = async (req, res, next) => {
     const admin = await Admin.findOne({ email: emailLower }).select('+passwordHash');
 
     if (!admin) {
+      await AuditLog.create({
+        adminId: 'UNKNOWN',
+        adminEmail: emailLower,
+        action: 'ADMIN_LOGIN_FAILED_NO_USER',
+        resourceType: 'ADMIN',
+        ipAddress: req.ip,
+      }).catch(() => {});
+
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password credentials.',
@@ -30,6 +38,15 @@ export const login = async (req, res, next) => {
 
     const isMatch = await admin.comparePassword(password);
     if (!isMatch) {
+      await AuditLog.create({
+        adminId: String(admin._id),
+        adminEmail: admin.email,
+        action: 'ADMIN_LOGIN_FAILED_WRONG_PASSWORD',
+        resourceType: 'ADMIN',
+        resourceId: String(admin._id),
+        ipAddress: req.ip,
+      }).catch(() => {});
+
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password credentials.',
@@ -55,11 +72,11 @@ export const login = async (req, res, next) => {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     });
 
-    // Set HTTP-Only Cookie
+    // Set HTTP-Only Cookie (compatible with cross-site production deployments)
     res.cookie('admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
