@@ -1,0 +1,20 @@
+{
+  "name": "cleaning-service-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sagarika Odicare Services - Home Cleaning Web Application (Frontend & Backend)",
+  "scripts": {
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:start": "npm --prefix backend run start",
+    "backend:seed": "npm --prefix backend run seed",
+    "install:all": "npm --prefix frontend install && npm --prefix backend install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
